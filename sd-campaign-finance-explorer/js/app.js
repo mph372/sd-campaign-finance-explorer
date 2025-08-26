@@ -564,11 +564,18 @@ function renderRaceGroups(candidates) {
         const totalRaised = raceCandidates.reduce((sum, c) => sum + (c.total_contributions_sum || 0), 0);
         const candidatesWithReports = raceCandidates.filter(c => c.reports_filed > 0).length;
         
+        // Get jurisdiction info from first candidate in the race
+        const firstCandidate = raceCandidates[0];
+        const jurisdictionUrl = getJurisdictionUrl(firstCandidate.jurisdiction);
+        const raceTitle = `${firstCandidate.office}${firstCandidate.district ? ` District ${firstCandidate.district}` : ''}`;
+        
         return `
             <div class="race-group" id="race-${btoa(raceKey).replace(/[^A-Za-z0-9]/g, '')}">
                 <div class="race-header" onclick="toggleRaceGroup('${btoa(raceKey).replace(/[^A-Za-z0-9]/g, '')}')">
                     <div>
-                        <h3 class="race-title">${raceKey}</h3>
+                        <h3 class="race-title">
+                            <a href="${jurisdictionUrl}" target="_blank" class="jurisdiction-link" onclick="event.stopPropagation(); handleExternalLinkClick('jurisdiction', '${jurisdictionUrl}')">${raceTitle}</a>
+                        </h3>
                         <p class="race-summary">${raceCandidates.length} candidates • ${candidatesWithReports} filed reports • ${formatCurrency(totalRaised)} total raised</p>
                     </div>
                     <span class="expand-icon">▼</span>
