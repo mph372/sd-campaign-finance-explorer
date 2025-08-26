@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>San Diego Campaign Finance Explorer</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>San Diego Campaign Finance Explorer</h1>
+            <p class="subtitle">Track campaign contributions and expenditures across San Diego County races</p>
+        </header>
+
+        <div class="info-section">
+            <div class="data-info">
+                <h3>About This Data</h3>
+                <p>This tracker includes campaign finance data from races across San Diego County (Supervisor other countywide races) and cities throughout the county. <strong>If a candidate does not have a committee opened, they are not listed here.</strong> However, if a candidate has a committee open but has not yet filed any reports, they are listed with "No 460s filed" indicated.</p>
+                <p class="credits">Created by Mason Herron • <a href="mailto:mason@edgewater-strategies.com">mason@edgewater-strategies.com</a> • <a href="https://x.com/mason_herron" target="_blank">@mason_herron</a></p>
+            </div>
+            
+            <div class="ballot-book-promo">
+                <div class="promo-content">
+                    <strong>🗳️ Looking for statewide data?</strong>
+                    <p>For legislative and statewide fundraising numbers, check out our comprehensive platform:</p>
+                    <a href="https://theballotbook.com/campaign_finance/2026_primary_overview?utm_source=sd_campaign_tracker&utm_medium=referral&utm_campaign=county_tracker" target="_blank" class="ballot-book-link">
+                        Visit The Ballot Book →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-summary" id="statsSummary">
+            <!-- Summary stats will be populated here -->
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="viewToggle">View:</label>
+                <div class="view-toggle">
+                    <button id="tableViewBtn" class="toggle-btn active">Table View</button>
+                    <button id="raceViewBtn" class="toggle-btn">Group by Race</button>
+                </div>
+            </div>
+            
+            <div class="control-group" id="raceFilterGroup">
+                <label for="raceFilter">Filter by Race:</label>
+                <select id="raceFilter" class="race-select">
+                    <option value="all">All Races</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="candidateSearch">Search Candidates:</label>
+                <input type="text" id="candidateSearch" placeholder="Enter candidate name..." class="search-input">
+            </div>
+            
+            <div class="control-group">
+                <button id="clearFilters" class="clear-btn">Clear All Filters</button>
+            </div>
+        </div>
+
+        <div class="table-container" id="tableContainer">
+            <table class="candidates-table" id="candidatesTable">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-column="candidate_name">Candidate</th>
+                        <th class="sortable" data-column="race">Race</th>
+                        <th class="sortable" data-column="total_contributions_sum">Total Raised</th>
+                        <th class="sortable" data-column="total_expenditures_sum">Total Spent</th>
+                        <th class="sortable" data-column="cash_on_hand">Cash on Hand</th>
+                        <th class="sortable" data-column="outstanding_debt">Outstanding Debt</th>
+                        <th class="sortable" data-column="reports_filed">Reports Filed</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="candidatesTableBody">
+                    <!-- Candidate data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="race-groups-container" id="raceGroupsContainer" style="display: none;">
+            <!-- Race groups will be populated here -->
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <p>No candidates found matching your criteria.</p>
+        </div>
+
+        <!-- Candidate Detail Modal -->
+        <div class="modal" id="candidateModal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalCandidateName"></h2>
+                    <span class="close" id="closeModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="candidate-summary" id="modalCandidateSummary">
+                        <!-- Candidate summary will be populated here -->
+                    </div>
+                    <div class="reports-section">
+                        <h3>Filing History</h3>
+                        <table class="reports-table" id="modalReportsTable">
+                            <thead>
+                                <tr>
+                                    <th>Period</th>
+                                    <th>Date Filed</th>
+                                    <th>Contributions</th>
+                                    <th>Loans</th>
+                                    <th>Expenditures</th>
+                                    <th>Cash on Hand</th>
+                                    <th>Outstanding Debt</th>
+                                    <th>Link</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalReportsTableBody">
+                                <!-- Report data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-overlay" id="modalOverlay" style="display: none;"></div>
+    </div>
+
+    <footer class="footer">
+        <p>Data source: Official campaign finance filings. Last updated: <span id="lastUpdated"></span></p>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
