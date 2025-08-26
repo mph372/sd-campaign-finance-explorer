@@ -3,6 +3,67 @@ let currentCandidates = processedCandidates;
 let currentSort = { column: null, direction: 'asc' };
 let currentView = 'table'; // 'table' or 'race'
 
+// Google Analytics Enhanced Tracking Functions
+function trackEvent(eventName, parameters = {}) {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', eventName, parameters);
+        console.log('GA Event:', eventName, parameters); // For debugging
+    }
+}
+
+function trackViewChange(viewType) {
+    trackEvent('view_change', {
+        'view_type': viewType,
+        'custom_parameter_1': 'user_interface'
+    });
+}
+
+function trackFilter(filterType, filterValue) {
+    trackEvent('filter_applied', {
+        'filter_type': filterType,
+        'filter_value': filterValue,
+        'custom_parameter_1': 'data_exploration'
+    });
+}
+
+function trackSort(columnName, direction) {
+    trackEvent('sort_data', {
+        'column_name': columnName,
+        'sort_direction': direction,
+        'custom_parameter_1': 'data_exploration'
+    });
+}
+
+function trackCandidateView(candidateName, race) {
+    trackEvent('view_candidate_details', {
+        'candidate_name': candidateName,
+        'race': race,
+        'custom_parameter_1': 'candidate_research'
+    });
+}
+
+function trackSearch(searchTerm) {
+    if (searchTerm.length >= 3) { // Only track meaningful searches
+        trackEvent('search', {
+            'search_term': searchTerm,
+            'custom_parameter_1': 'candidate_research'
+        });
+    }
+}
+
+function trackExternalLink(linkType, url) {
+    trackEvent('click_external_link', {
+        'link_type': linkType,
+        'link_url': url,
+        'custom_parameter_1': 'external_engagement'
+    });
+}
+
+function handleExternalLinkClick(linkType, url) {
+    trackExternalLink(linkType, url);
+    // Let the default link behavior continue
+}
+
 // DOM Elements
 const raceFilter = document.getElementById('raceFilter');
 const candidateSearch = document.getElementById('candidateSearch');
@@ -127,6 +188,14 @@ function handleFilterChange() {
     const raceValue = raceFilter.value;
     const searchValue = candidateSearch.value.toLowerCase().trim();
     
+    // Track filter usage
+    if (raceValue !== 'all') {
+        trackFilter('race', raceValue);
+    }
+    if (searchValue) {
+        trackSearch(searchValue);
+    }
+    
     let filteredCandidates = getCandidatesByRace(processedCandidates, raceValue);
     
     if (searchValue) {
@@ -149,6 +218,11 @@ function handleFilterChange() {
 
 // Clear all filters
 function clearAllFilters() {
+    // Track filter clear action
+    trackEvent('clear_filters', {
+        'custom_parameter_1': 'data_exploration'
+    });
+    
     raceFilter.value = 'all';
     candidateSearch.value = '';
     currentCandidates = processedCandidates;
@@ -183,6 +257,9 @@ function handleSort(e) {
     if (currentSort.column === column && currentSort.direction === 'asc') {
         direction = 'desc';
     }
+    
+    // Track sort action
+    trackSort(column, direction);
     
     currentSort = { column, direction };
     
@@ -249,7 +326,7 @@ function renderCandidates(candidates) {
                 <td>
                     <div class="race-info">
                         <div class="jurisdiction">
-                            <a href="${getJurisdictionUrl(candidate.jurisdiction)}" target="_blank" class="jurisdiction-link">
+                            <a href="${getJurisdictionUrl(candidate.jurisdiction)}" target="_blank" class="jurisdiction-link" onclick="handleExternalLinkClick('jurisdiction', '${getJurisdictionUrl(candidate.jurisdiction)}')">
                                 ${candidate.office}${candidate.district ? ` District ${candidate.district}` : ''}
                             </a>
                         </div>
@@ -336,6 +413,10 @@ function showCandidateDetails(candidateName, jurisdiction, office, district) {
     
     if (!candidate) return;
     
+    // Track candidate detail view
+    const race = `${jurisdiction} ${office}${district ? ` District ${district}` : ''}`;
+    trackCandidateView(candidateName, race);
+    
     // Update modal content
     document.getElementById('modalCandidateName').textContent = candidate.candidate_name;
     
@@ -348,7 +429,7 @@ function showCandidateDetails(candidateName, jurisdiction, office, district) {
         <div class="summary-item">
             <div class="label">Race</div>
             <div class="value" style="font-size: 1rem; font-weight: 500;">
-                <a href="${getJurisdictionUrl(candidate.jurisdiction)}" target="_blank" class="jurisdiction-link">
+                <a href="${getJurisdictionUrl(candidate.jurisdiction)}" target="_blank" class="jurisdiction-link" onclick="handleExternalLinkClick('jurisdiction', '${getJurisdictionUrl(candidate.jurisdiction)}')">
                     ${candidate.office}${candidate.district ? ` District ${candidate.district}` : ''}
                 </a>
             </div>
@@ -386,7 +467,7 @@ function showCandidateDetails(candidateName, jurisdiction, office, district) {
                 <td class="currency ${getCurrencyClass(report.total_expenditures)}">${formatCurrency(report.total_expenditures)}</td>
                 <td class="currency ${getCurrencyClass(report.cash_on_hand)}">${formatCurrency(report.cash_on_hand)}</td>
                 <td class="currency ${getCurrencyClass(report.outstanding_debt)}">${formatCurrency(report.outstanding_debt)}</td>
-                <td>${report.link ? `<a href="${report.link}" target="_blank">View Filing</a>` : 'N/A'}</td>
+                <td>${report.link ? `<a href="${report.link}" target="_blank" onclick="handleExternalLinkClick('filing', '${report.link}')">View Filing</a>` : 'N/A'}</td>
             </tr>
         `).join('');
     
@@ -429,6 +510,9 @@ function updateLastUpdatedDate() {
 // Switch between table and race views
 function switchView(view) {
     currentView = view;
+    
+    // Track view change
+    trackViewChange(view);
     
     // Update button states
     tableViewBtn.classList.toggle('active', view === 'table');
